@@ -18,8 +18,9 @@ dataset$date <- as.Date(dataset$date)
 
 ## What is mean total number of steps taken per day?
 1. Make a histogram of the total number of steps taken each day
-  Number of steps taken are first aggregated to each date - ignoting any missing
-  values. Base plot of histogram is made from the aggregated results
+
+Total number of steps taken are first calculated for each date - ignoring any 
+missing values. Using base plot, a histogram is made from aggregated results.
 
 ```{r}
 dailysteps <- aggregate(steps ~ date, data=dataset, sum)
@@ -29,19 +30,29 @@ hist(dailysteps$steps,
      , col="#0000FF88")
 ```
 
+
 2. Calculate and report the mean and median total number of steps taken per day
 
-Daily mean
+The daily mean are taken across all all dates and yield the result of 10766.19
+steps per day.
 ```{r}
 mean(dailysteps$steps)
 ```
-Daily median
+
+The daily median are taken across all all dates and yield the result of 10765
+steps per day.
 ```{r}
 median(dailysteps$steps)
 ```
 
 ## What is the average daily activity pattern?
-1.  Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+1.  Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) 
+and the average number of steps taken, averaged across all days (y-axis)
+
+The average steps are calculated for each interval across the date. Again the
+missing values in the dataset are removed from the calculation. A trendline
+for average number of steps taken vs. interval measured are plotted.
+
 ```{r}
 avgsteps <- aggregate(steps ~ interval, data=dataset, mean, na.rm=T)
 plot(x=avgsteps$interval, y=avgsteps$steps, type="l", 
@@ -49,8 +60,10 @@ plot(x=avgsteps$interval, y=avgsteps$steps, type="l",
      xlab="5-minute time interval",ylab="average number of steps taken")
 ```
 
+
 2. Which 5-minute interval, on average across all the days in the dataset, 
 contains the maximum number of steps?
+
 The interval 835 contains the maximum number of steps when averaged across all 
 the days in the dataset
 ```{r}
@@ -61,6 +74,8 @@ avgsteps[avgsteps$steps == max(avgsteps$steps), ]
 1. Calculate and report the total number of missing values in the dataset
 (i.e. the total number of rows with NAs)
 
+For a quick check of missing data, the complete.case() from stats was used to 
+detect any missing values in the dataset.
 ```{r}
 sum(!complete.cases(dataset))
 ```
@@ -77,6 +92,10 @@ than single values of mean or median.
 3. Create a new dataset that is equal to the original dataset but with the 
 missing data filled in.
 
+In order to fill in the missing data, first a new dataset "new_ds" were created.
+The columns steps would be updated via a conditional statement. When steps 
+information are missing, the calculated from average steps for the particulaer
+interval would be substituted into the dataset.
 ```{r}
 new_ds <- dataset
 new_ds$steps <- ifelse(is.na(new_ds$steps), 
@@ -89,6 +108,11 @@ and report the mean and median total number of steps taken per day. Do these
 values differ from the estimates from the first part of the assignment? 
 What is the impact of imputing missing data on the estimates of the total daily 
 number of steps?
+
+Similarly to the original dataset, in order to create the histogram, the total
+daily steps would need to be calculated first. Take note that the option of 
+na.rm was not set this time. As we had carried out the substitution in earlier
+steps, this setting would be redundant.
 
 Histogram with estimation of any missing data
 ```{r}
@@ -125,7 +149,10 @@ isWeekday() function.
 library(timeDate)
 ```
 
-The new columns created will then be converted into factor
+The function mutate() from plyr library was used here to create the new calumn.
+The new columns was populated using the isWeekday() function which would return
+TRUE for weekdays and FALSE for weekend. The columns was then convered to factor
+for further use.
 
 ```{r}
 library(plyr)
@@ -163,7 +190,11 @@ xyplot(weekday_avg$steps~weekday_avg$interval|weekday_avg$WeekDay,
        layout=(c(1,2)))
 ```
 
-In comparison between weekdays and weekend trend, the average number of steps in
-weekend varies between 0 - 200 throughout the day. Where as for weekday, number 
-of steps taken started to increase around 540 interval - and continued to peak 
-835 interval - 230 steps.  
+During weekends, the average number of steps gradually increase from 540 interval
+until about 835 interval. The average number of steps continue to fluctuate upto
+150 from here onwards.
+
+In contrast, number steps on weekdays gradually increase from 540 interval.
+However between 800+, a drastic increase in average steps and it peaked at 835
+interval with 230 steps. The average steps decreased from here onwards and from 
+900+ onwards - only fluctuating between upto 120.
